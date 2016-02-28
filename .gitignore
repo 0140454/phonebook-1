@@ -5,9 +5,12 @@
 *.list
 *.swp
 *.bak
+*.gch
+phonebook_hash
 phonebook_opt
 phonebook_orig
 calculate
+hash.txt
 orig.txt
 opt.txt
 output.txt

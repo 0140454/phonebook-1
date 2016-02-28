@@ -29,4 +29,6 @@ typedef struct __PHONE_BOOK {
 entry *findName(char lastName[], entry *pHead);
 entry *append(char lastName[], entry *e);
 
+unsigned int hashfunction(char *str);
+
 #endif
