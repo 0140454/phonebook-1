@@ -25,6 +25,7 @@ static double diff_in_second(struct timespec t1, struct timespec t2)
     return (diff.tv_sec + diff.tv_nsec / 1000000000.0);
 }
 
+#if !defined(TRIE)
 static void free_list(entry *pHead) {
     while(pHead->pNext) {
         entry *next = pHead->pNext;
@@ -32,6 +33,7 @@ static void free_list(entry *pHead) {
         free(next);
     }
 }
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -58,6 +60,9 @@ int main(int argc, char *argv[])
         e[i]->pNext = NULL;
     }
     i = 0;
+#elif defined(TRIE)
+    entry *pHead = (entry *) calloc(1, sizeof(entry));
+    printf("size of entry : %lu bytes\n", sizeof(entry));
 #else
     entry *pHead, *e;
     pHead = (entry *) malloc(sizeof(entry));
@@ -82,6 +87,8 @@ int main(int argc, char *argv[])
 #if defined(HASH)
         unsigned int hash_index = hashfunction(line) % TABLE_SIZE;
         e[hash_index] = append(line, e[hash_index]);
+#elif defined(TRIE)
+        append(line, pHead);
 #else
         e = append(line, e);
 #endif
@@ -96,7 +103,7 @@ int main(int argc, char *argv[])
     for (i = 0; i < TABLE_SIZE; ++i) {
         e[i] = &pHead[i];
     }
-#else
+#elif !defined(TRIE)
     e = pHead;
 #endif
 
@@ -109,6 +116,10 @@ int main(int argc, char *argv[])
     assert(findName(input, e[hash_index]) &&
            "Did you implement findName() in " IMPL "?");
     assert(0 == strcmp(findName(input, e[hash_index])->lastName, "zyxel"));
+#elif defined(TRIE)
+    assert(findName(input, pHead) &&
+           "Did you implement findName() in " IMPL "?");
+    assert(findName(input, pHead)->ch == '\0');
 #else
     e = pHead;
     assert(findName(input, e) &&
@@ -127,6 +138,8 @@ int main(int argc, char *argv[])
     clock_gettime(CLOCK_REALTIME, &start);
 #if defined(HASH)
     findName(input, e[hash_index]);
+#elif defined(TRIE)
+    findName(input, pHead);
 #else
     findName(input, e);
 #endif
@@ -138,6 +151,8 @@ int main(int argc, char *argv[])
     output = fopen("opt.txt", "a");
 #elif defined(HASH)
     output = fopen("hash.txt", "a");
+#elif defined(TRIE)
+    output = fopen("trie.txt", "a");
 #else
     output = fopen("orig.txt", "a");
 #endif
@@ -151,10 +166,13 @@ int main(int argc, char *argv[])
     for (i = 0; i < TABLE_SIZE; ++i) {
         free_list(&pHead[i]);
     }
+    free(pHead);
+#elif defined(TRIE)
+    free_trie(pHead);
 #else
     free_list(pHead);
-#endif
     free(pHead);
+#endif
 
     return 0;
 }

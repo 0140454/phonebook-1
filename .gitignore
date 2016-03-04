@@ -6,10 +6,12 @@
 *.swp
 *.bak
 *.gch
+phonebook_trie
 phonebook_hash
 phonebook_opt
 phonebook_orig
 calculate
+trie.txt
 hash.txt
 orig.txt
 opt.txt
