@@ -2,17 +2,30 @@
 #include <string.h>
 
 #include "phonebook_trie.h"
+#include "memory_pool.h"
+
+static memory_pool *pool = NULL;
 
 /* FILL YOUR OWN IMPLEMENTATION HERE! */
-entry *findName(char lastname[], entry *pHead)
+void init_memory_pool(int size)
 {
-    int i, alpha, len = strlen(lastname);
+    pool = pool_init(size);
+}
+
+void free_memory_pool(void)
+{
+    pool_free(pool);
+}
+
+entry *findName(char lastName[], entry *pHead)
+{
+    int i, alpha, len = strlen(lastName);
 
     for (i = 0; i <= len && pHead; ++i) {
-        if (lastname[i] >= 'a')
-            alpha = lastname[i] - 'a';
-        else if (lastname[i] >= 'A')
-            alpha = lastname[i] - 'A';
+        if (lastName[i] >= 'a')
+            alpha = lastName[i] - 'a';
+        else if (lastName[i] >= 'A')
+            alpha = lastName[i] - 'A';
         else
             alpha = 26;
 
@@ -35,21 +48,10 @@ void append(char lastName[], entry *pHead)
             alpha = 26;
 
         if (pHead->pChild[alpha] == NULL) {
-            pHead->pChild[alpha] = (entry *) calloc(1, sizeof(entry));
+            pHead->pChild[alpha] = (entry *) pool_alloc(pool, sizeof(entry));
             pHead->pChild[alpha]->ch = lastName[i];
         }
 
         pHead = pHead->pChild[alpha];
     }
-}
-
-void free_trie(entry *pHead)
-{
-    if (pHead == NULL)
-        return;
-
-    int i;
-    for (i = 0; i < 27; ++i)
-        free_trie(pHead->pChild[i]);
-    free(pHead);
 }

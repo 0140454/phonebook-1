@@ -26,9 +26,9 @@ typedef struct __PHONE_BOOK {
     struct __PHONE_BOOK *pChild[27];
 } entry;
 
-entry *findName(char lastname[], entry *pHead);
+void init_memory_pool(int size);
+void free_memory_pool(void);
+entry *findName(char lastName[], entry *pHead);
 void append(char lastName[], entry *pHead);
-
-void free_trie(entry *pHead);
 
 #endif

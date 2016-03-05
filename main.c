@@ -25,16 +25,6 @@ static double diff_in_second(struct timespec t1, struct timespec t2)
     return (diff.tv_sec + diff.tv_nsec / 1000000000.0);
 }
 
-#if !defined(TRIE) && !defined(RBTREE)
-static void free_list(entry *pHead) {
-    while(pHead->pNext) {
-        entry *next = pHead->pNext;
-        pHead->pNext = next->pNext;
-        free(next);
-    }
-}
-#endif
-
 int main(int argc, char *argv[])
 {
     FILE *fp;
@@ -49,6 +39,13 @@ int main(int argc, char *argv[])
         printf("cannot open the file\n");
         return -1;
     }
+
+    /* initialize memory pool */
+#if defined(TRIE)
+    init_memory_pool(sizeof(entry) * 350000 * 13);
+#else
+    init_memory_pool(sizeof(entry) * 350000);
+#endif
 
     /* build the entry */
 #if defined(HASH)
@@ -173,17 +170,8 @@ int main(int argc, char *argv[])
     printf("execution time of append() : %lf sec\n", cpu_time1);
     printf("execution time of findName() : %lf sec\n", cpu_time2);
 
-#if defined(HASH)
-    for (i = 0; i < TABLE_SIZE; ++i) {
-        free_list(&pHead[i]);
-    }
-    free(pHead);
-#elif defined(TRIE)
-    free_trie(pHead);
-#elif defined(RBTREE)
-    free_rbtree(pHead);
-#else
-    free_list(pHead);
+    free_memory_pool();
+#if !defined(RBTREE)
     free(pHead);
 #endif
 
