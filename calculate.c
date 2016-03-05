@@ -84,13 +84,33 @@ int main(void)
         trie_sum_f += trie_f;
     }
 
-    fprintf(output, "append() %lf %lf %lf %lf\n",orig_sum_a / 100.0, opt_sum_a / 100.0,
-            hash_sum_a / 100.0, trie_sum_a / 100.0);
-    fprintf(output, "findName() %lf %lf %lf %lf\n", orig_sum_f / 100.0, opt_sum_f / 100.0,
-            hash_sum_f / 100.0, trie_sum_f / 100.0);
-    fprintf(output, "total %lf %lf %lf %lf", (orig_sum_a + orig_sum_f) / 100.0,
+    fp = fopen("rbtree.txt", "r");
+    if (!fp) {
+        fp = fopen("orig.txt", "r");
+        if (!fp) {
+            printf("ERROR opening input file rbtree.txt\n");
+            exit(0);
+        }
+    }
+    double rbtree_sum_a = 0.0, rbtree_sum_f = 0.0, rbtree_a, rbtree_f;
+    for (i = 0; i < 100; i++) {
+        if (feof(fp)) {
+            printf("ERROR: You need 100 datum instead of %d\n", i);
+            printf("run 'make run' longer to get enough information\n\n");
+            exit(0);
+        }
+        fscanf(fp, "%s %s %lf %lf\n", append, find,&rbtree_a, &rbtree_f);
+        rbtree_sum_a += rbtree_a;
+        rbtree_sum_f += rbtree_f;
+    }
+
+    fprintf(output, "append() %lf %lf %lf %lf %lf\n",orig_sum_a / 100.0, opt_sum_a / 100.0,
+            hash_sum_a / 100.0, trie_sum_a / 100.0, rbtree_sum_a / 100.0);
+    fprintf(output, "findName() %lf %lf %lf %lf %lf\n", orig_sum_f / 100.0, opt_sum_f / 100.0,
+            hash_sum_f / 100.0, trie_sum_f / 100.0, rbtree_sum_f / 100.0);
+    fprintf(output, "total %lf %lf %lf %lf %lf", (orig_sum_a + orig_sum_f) / 100.0,
             (opt_sum_a + opt_sum_f) / 100.0, (hash_sum_a + hash_sum_f) / 100.0,
-            (trie_sum_a + trie_sum_f) / 100.0);
+            (trie_sum_a + trie_sum_f) / 100.0, (rbtree_sum_a + rbtree_sum_f) / 100.0);
     fclose(output);
     fclose(fp);
     return 0;

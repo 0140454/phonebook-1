@@ -6,11 +6,13 @@
 *.swp
 *.bak
 *.gch
+phonebook_rbtree
 phonebook_trie
 phonebook_hash
 phonebook_opt
 phonebook_orig
 calculate
+rbtree.txt
 trie.txt
 hash.txt
 orig.txt

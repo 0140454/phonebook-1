@@ -25,7 +25,7 @@ static double diff_in_second(struct timespec t1, struct timespec t2)
     return (diff.tv_sec + diff.tv_nsec / 1000000000.0);
 }
 
-#if !defined(TRIE)
+#if !defined(TRIE) && !defined(RBTREE)
 static void free_list(entry *pHead) {
     while(pHead->pNext) {
         entry *next = pHead->pNext;
@@ -63,6 +63,9 @@ int main(int argc, char *argv[])
 #elif defined(TRIE)
     entry *pHead = (entry *) calloc(1, sizeof(entry));
     printf("size of entry : %lu bytes\n", sizeof(entry));
+#elif defined(RBTREE)
+    entry *pHead = NULL;
+    printf("size of entry : %lu bytes\n", sizeof(entry));
 #else
     entry *pHead, *e;
     pHead = (entry *) malloc(sizeof(entry));
@@ -74,7 +77,7 @@ int main(int argc, char *argv[])
 #if defined(__GNUC__)
 #if defined(HASH)
     __builtin___clear_cache((char *) pHead, (char *) pHead + TABLE_SIZE * sizeof(entry));
-#else
+#elif !defined(RBTREE)
     __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
 #endif
 #endif
@@ -89,6 +92,8 @@ int main(int argc, char *argv[])
         e[hash_index] = append(line, e[hash_index]);
 #elif defined(TRIE)
         append(line, pHead);
+#elif defined(RBTREE)
+        pHead = append(line, pHead);
 #else
         e = append(line, e);
 #endif
@@ -103,7 +108,7 @@ int main(int argc, char *argv[])
     for (i = 0; i < TABLE_SIZE; ++i) {
         e[i] = &pHead[i];
     }
-#elif !defined(TRIE)
+#elif !defined(TRIE) && !defined(RBTREE)
     e = pHead;
 #endif
 
@@ -120,6 +125,10 @@ int main(int argc, char *argv[])
     assert(findName(input, pHead) &&
            "Did you implement findName() in " IMPL "?");
     assert(findName(input, pHead)->ch == '\0');
+#elif defined(RBTREE)
+    assert(findName(input, pHead) &&
+           "Did you implement findName() in " IMPL "?");
+    assert(0 == strcmp(findName(input, pHead)->lastName, "zyxel"));
 #else
     e = pHead;
     assert(findName(input, e) &&
@@ -138,7 +147,7 @@ int main(int argc, char *argv[])
     clock_gettime(CLOCK_REALTIME, &start);
 #if defined(HASH)
     findName(input, e[hash_index]);
-#elif defined(TRIE)
+#elif defined(TRIE) || defined(RBTREE)
     findName(input, pHead);
 #else
     findName(input, e);
@@ -153,6 +162,8 @@ int main(int argc, char *argv[])
     output = fopen("hash.txt", "a");
 #elif defined(TRIE)
     output = fopen("trie.txt", "a");
+#elif defined(RBTREE)
+    output = fopen("rbtree.txt", "a");
 #else
     output = fopen("orig.txt", "a");
 #endif
@@ -169,6 +180,8 @@ int main(int argc, char *argv[])
     free(pHead);
 #elif defined(TRIE)
     free_trie(pHead);
+#elif defined(RBTREE)
+    free_rbtree(pHead);
 #else
     free_list(pHead);
     free(pHead);
